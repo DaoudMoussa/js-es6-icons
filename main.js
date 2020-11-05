@@ -9,7 +9,14 @@
 // tipo di icona un colore.
 // Visualizzare le icone di colore diverso in base al tipo.
 
+// aggiungere una select per filtrare le icone in
+// base al tipo.
+// Popolare le options della select dinamicamente
+// e, ogni volta che cambia il valore selezionato,
+// visualizzare le icone corrispondenti.
+
 $(document).ready(() => {
+    //dichiarazione array con all'interno gli oggetti rappresentanti le icone
     const icons = [
         {
             name: 'cat',
@@ -109,33 +116,56 @@ $(document).ready(() => {
         }
     ];
 
+    // Dichiarazione array paralleli contenenti colori e tipi corrispondenti
     const colors = ['green', 'lightblue', 'brown']
     const types = [];
+    // ciclo che salva ogni tipo una sola volta nell'apposito array
+    // e aggiunge nel select.filter una option per ogni tipo
     icons.forEach(icon => {
         const {type} = icon;
 
         if(!types.includes(type)) {
             types.push(type);
+            $('.filter').append(`
+                <option value="${type}">${type}</option>
+            `);
         }
     });
 
-    icons.forEach(icon => {
-        const {name, prefix, family, type} = icon;
-        const typeIndex = types.indexOf(type);
-        const iconColor = colors[typeIndex];
+    // legge il tipo selezionato (inizialmente sarà sempre: "")
+    let selectedType = $('.filter').val();
+    // stampa in pagina le apposite (tutte) icone con i nomi e gli appositi colori
+    printIcons(icons, selectedType, types, colors);
 
-        $('.container').append(`
-            <div class="icon-wrapper">
-                <i class="${family} ${prefix}${name}" style="color: ${iconColor}"></i>
-                <p class="name-icon">${name}</p>
-            </div>
-        `)
+    // Controlla quando il select con classe filter cambia valore
+    $('.filter').change(() => {
+        //legge il valore di select
+        selectedType = $('.filter').val();
 
-
+        // Cancella tutte le icone stampate precedentemente
+        $('.container').empty();
+        // stampa in pagina le apposite icone con i nomi e gli appositi colori
+        printIcons(icons, selectedType, types, colors);
     });
 
 
-
-
-
 })
+
+// funzione che stampa in pagina le apposite icone con i rispettivi colori e nomi
+// se selectedType è una stringa vuota allora stampa tutto
+function printIcons(icons, selectedType, ...iconProperties) {
+    icons.forEach(icon => {
+        const {name, prefix, family, type} = icon;
+        if(type == selectedType || selectedType == "") {
+            const typeIndex = iconProperties[0].indexOf(type);
+            const iconColor = iconProperties[1][typeIndex];
+
+            $('.container').append(`
+                <div class="icon-wrapper">
+                <i class="${family} ${prefix}${name}" style="color: ${iconColor}"></i>
+                <p class="name-icon">${name}</p>
+                </div>
+            `);
+        }
+    });
+}
